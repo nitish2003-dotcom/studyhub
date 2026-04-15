@@ -1,42 +1,63 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, send_file
 import sqlite3
 import os
+import io
 from dotenv import load_dotenv
 from groq import Groq
 from werkzeug.utils import secure_filename
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-from flask import send_file
-import io
 
-load_dotenv(".env")
+# -------------------------------------------------
+# ENV / APP SETUP
+# -------------------------------------------------
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+ENV_PATH = os.path.join(BASE_DIR, ".env")
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-
+# local ke liye .env load hoga, hosting par env vars direct mil jayenge
+if os.path.exists(ENV_PATH):
+    load_dotenv(ENV_PATH)
 
 app = Flask(__name__)
-app.secret_key = "secret123"
 
-UPLOAD_FOLDER = "static/uploads"
+# existing behavior same rakha, bas online-safe fallback diya
+app.secret_key = os.getenv("SECRET_KEY", "secret123")
+
+# DB path configurable rakha
+DB_PATH = os.getenv("DB_PATH", os.path.join(BASE_DIR, "studyhub.db"))
+
+# Upload folder configurable rakha
+UPLOAD_FOLDER = os.getenv(
+    "UPLOAD_FOLDER",
+    os.path.join(BASE_DIR, "static", "uploads")
+)
 ALLOWED_EXTENSIONS = {"pdf"}
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
+# Groq client only if API key exists
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 
-# ---------- HELPERS ----------
+# -------------------------------------------------
+# HELPERS
+# -------------------------------------------------
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def get_db():
-    conn = sqlite3.connect("studyhub.db")
+    conn = sqlite3.connect(DB_PATH, timeout=30)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
 
 def init_db():
-    conn = sqlite3.connect("studyhub.db")
+    conn = sqlite3.connect(DB_PATH, timeout=30)
+    conn.execute("PRAGMA foreign_keys = ON")
 
     conn.execute("""
     CREATE TABLE IF NOT EXISTS users (
@@ -73,10 +94,10 @@ def init_db():
         semester INTEGER DEFAULT 1
     )
     """)
-        # courses table me semester column add karne ke liye
+
+    # courses table me semester column ensure karna
     columns = conn.execute("PRAGMA table_info(courses)").fetchall()
     column_names = [col[1] for col in columns]
-
     if "semester" not in column_names:
         conn.execute("ALTER TABLE courses ADD COLUMN semester INTEGER DEFAULT 1")
 
@@ -131,7 +152,9 @@ def get_course_progress(user_name, course_id):
 init_db()
 
 
-# ---------- ROUTES ----------
+# -------------------------------------------------
+# ROUTES
+# -------------------------------------------------
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -449,7 +472,7 @@ def delete_task(task_id):
 @app.route("/save-session", methods=["POST"])
 def save_session():
     if "user" not in session:
-        return "Unauthorized"
+        return "Unauthorized", 401
 
     duration = request.form["duration"]
 
@@ -490,6 +513,8 @@ def settings():
 def logout():
     session.pop("user", None)
     return redirect("/login")
+
+
 @app.route("/delete-pdf/<int:course_id>/<int:module_id>")
 def delete_pdf(course_id, module_id):
     if "user" not in session:
@@ -505,11 +530,9 @@ def delete_pdf(course_id, module_id):
     if module and module["pdf_file"]:
         file_path = os.path.join(app.config["UPLOAD_FOLDER"], module["pdf_file"])
 
-        # file delete from folder
         if os.path.exists(file_path):
             os.remove(file_path)
 
-        # DB se remove
         conn.execute(
             "UPDATE course_modules SET pdf_file='' WHERE id=?",
             (module_id,)
@@ -517,8 +540,9 @@ def delete_pdf(course_id, module_id):
         conn.commit()
 
     conn.close()
-
     return redirect(f"/course/{course_id}")
+
+
 @app.route("/delete-module/<int:course_id>/<int:module_id>")
 def delete_module(course_id, module_id):
     if "user" not in session:
@@ -526,7 +550,6 @@ def delete_module(course_id, module_id):
 
     conn = get_db()
 
-    # pehle PDF file delete kar
     module = conn.execute(
         "SELECT pdf_file FROM course_modules WHERE id=?",
         (module_id,)
@@ -537,13 +560,11 @@ def delete_module(course_id, module_id):
         if os.path.exists(file_path):
             os.remove(file_path)
 
-    # module_progress delete
     conn.execute(
         "DELETE FROM module_progress WHERE module_id=?",
         (module_id,)
     )
 
-    # module delete
     conn.execute(
         "DELETE FROM course_modules WHERE id=?",
         (module_id,)
@@ -553,6 +574,8 @@ def delete_module(course_id, module_id):
     conn.close()
 
     return redirect(f"/course/{course_id}")
+
+
 @app.route("/edit-module/<int:course_id>/<int:module_id>", methods=["GET", "POST"])
 def edit_module(course_id, module_id):
     if "user" not in session:
@@ -578,7 +601,6 @@ def edit_module(course_id, module_id):
 
         if pdf and pdf.filename:
             if allowed_file(pdf.filename):
-                # old pdf delete
                 if module["pdf_file"]:
                     old_path = os.path.join(app.config["UPLOAD_FOLDER"], module["pdf_file"])
                     if os.path.exists(old_path):
@@ -599,6 +621,7 @@ def edit_module(course_id, module_id):
 
     conn.close()
     return render_template("edit_module.html", module=module, course_id=course_id)
+
 
 @app.route("/download-ai-pdf", methods=["POST"])
 def download_ai_pdf():
@@ -632,9 +655,13 @@ def download_ai_pdf():
         mimetype="application/pdf"
     )
 
+
 @app.route("/ask-ai", methods=["POST"])
 def ask_ai():
     user_message = request.form["message"]
+
+    if client is None:
+        return {"reply": "Groq API key not configured on server."}
 
     try:
         chat_completion = client.chat.completions.create(
@@ -679,5 +706,10 @@ Rules:
     except Exception as e:
         return {"reply": f"Error: {str(e)}"}
 
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 5000)),
+        debug=False
+    )

@@ -1,0 +1,6 @@
+Flask
+python-dotenv
+groq
+Werkzeug
+reportlab
+gunicorn
