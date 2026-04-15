@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup - StudyHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="auth-body">
+    <div class="auth-container">
+        <div class="auth-left">
+            <div class="auth-brand">StudyHub</div>
+            <h1>Create Account</h1>
+            <p>
+                Join StudyHub and build your own premium study environment with
+                productivity tools, smart tracking, and beautiful dashboards.
+            </p>
+
+            <div class="auth-feature-box">
+                <div class="auth-feature">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>AI Study Support</span>
+                </div>
+                <div class="auth-feature">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Task Management</span>
+                </div>
+                <div class="auth-feature">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Weekly Analytics</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-right">
+            <form class="auth-form glass-card" method="POST">
+                <h2>Signup</h2>
+                <p class="auth-subtext">Create your account and get started</p>
+
+                <div class="input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" name="name" placeholder="Enter your name" required>
+                </div>
+
+                <div class="input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" name="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password" placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="auth-btn">Create Account</button>
+
+                <p class="switch-text">
+                    Already have an account?
+                    <a href="/login">Login</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

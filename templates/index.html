@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="landing-body">
+    <nav class="premium-navbar">
+        <div class="brand-logo">StudyHub</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/signup">Signup</a>
+            <a href="/login">Login</a>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="hero-left">
+            <p class="hero-tag">AI Powered Study Platform</p>
+            <h1>Upgrade Your Study Experience With <span>StudyHub</span></h1>
+            <p class="hero-desc">
+                Focus better, track your progress, manage tasks, and create your own
+                premium virtual study room with a modern smart dashboard.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="/signup" class="hero-btn primary-btn">Get Started</a>
+                <a href="/login" class="hero-btn secondary-btn">Login</a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="mini-stat">
+                    <h3>25+</h3>
+                    <p>Smart Features</p>
+                </div>
+                <div class="mini-stat">
+                    <h3>100%</h3>
+                    <p>Focus Friendly</p>
+                </div>
+                <div class="mini-stat">
+                    <h3>24/7</h3>
+                    <p>Study Access</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-right">
+            <div class="hero-card glass-card">
+                <div class="hero-card-top">
+                    <span><i class="fa-solid fa-chart-line"></i> Progress</span>
+                    <span><i class="fa-solid fa-fire"></i> Streak</span>
+                </div>
+
+                <div class="hero-timer">25:00</div>
+
+                <div class="hero-card-buttons">
+                    <button class="start-btn">Start</button>
+                    <button class="break-btn">Break</button>
+                </div>
+
+                <div class="hero-progress">
+                    <div class="progress-row">
+                        <span>Python</span>
+                        <div class="line"><div class="fill fill-1"></div></div>
+                    </div>
+                    <div class="progress-row">
+                        <span>DBMS</span>
+                        <div class="line"><div class="fill fill-2"></div></div>
+                    </div>
+                    <div class="progress-row">
+                        <span>DSA</span>
+                        <div class="line"><div class="fill fill-3"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

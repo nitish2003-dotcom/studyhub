@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Timer | StudyHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="top-left">
+            <div class="logo">
+                <span>📘</span>
+                <span>StudyHub</span>
+            </div>
+
+            <div class="top-text">
+                <span class="tag">⏱ Focus Session</span>
+                <h1>Focus Timer, {{ user }} 👋</h1>
+                <p>Stay focused and complete your study sessions effectively.</p>
+            </div>
+        </div>
+
+        <div class="top-right">
+            <div class="nav-box">
+                <a href="/dashboard" class="nav-btn">🏠 Dashboard</a>
+                <a href="/courses" class="nav-btn">📚 Courses</a>
+                <a href="/timer" class="nav-btn active">⏱ Timer</a>
+                <a href="/ai-help" class="nav-btn">🤖 AI Help</a>
+                <a href="/logout" class="nav-btn">🚪 Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="timer-page-card">
+            <h2>⏱️ Premium Focus Timer</h2>
+            <p id="mode" class="mode-text">Focus Mode</p>
+
+            <div class="circle-container big-circle">
+                <svg class="progress-ring" width="260" height="260">
+                    <circle
+                        class="progress-bg"
+                        cx="130"
+                        cy="130"
+                        r="100"
+                        stroke-width="12"
+                        fill="transparent"
+                    />
+                    <circle
+                        class="progress-bar"
+                        cx="130"
+                        cy="130"
+                        r="100"
+                        stroke-width="12"
+                        fill="transparent"
+                    />
+                </svg>
+
+                <div class="timer-text">
+                    <h1 id="time">25:00</h1>
+                </div>
+            </div>
+
+            <div class="timer-actions">
+                <button class="timer-btn start-btn" onclick="startTimer()">▶ Start</button>
+                <button class="timer-btn pause-btn" onclick="pauseTimer()">⏸ Pause</button>
+                <button class="timer-btn reset-btn" onclick="resetTimer()">🔄 Reset</button>
+                <button class="timer-btn break-btn" onclick="shortBreak()">☕ Break</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let totalTime = 1500;
+        let time = totalTime;
+        let timer = null;
+
+        const circle = document.querySelector(".progress-bar");
+        const radius = 100;
+        const circumference = 2 * Math.PI * radius;
+
+        circle.style.strokeDasharray = circumference;
+
+        function updateCircle() {
+            let progress = time / totalTime;
+            let offset = circumference * (1 - progress);
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function updateDisplay() {
+            let minutes = Math.floor(time / 60);
+            let seconds = time % 60;
+
+            document.getElementById("time").innerText =
+                minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+
+            updateCircle();
+        }
+
+        function startTimer() {
+            if (timer) return;
+
+            timer = setInterval(() => {
+                if (time > 0) {
+                    time--;
+                    updateDisplay();
+                } else {
+                    clearInterval(timer);
+                    timer = null;
+                    alert("Session Complete 🔥");
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timer);
+            timer = null;
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            timer = null;
+            totalTime = 1500;
+            time = totalTime;
+            document.getElementById("mode").innerText = "Focus Mode";
+            updateDisplay();
+        }
+
+        function shortBreak() {
+            clearInterval(timer);
+            timer = null;
+            totalTime = 300;
+            time = totalTime;
+            document.getElementById("mode").innerText = "Break Mode";
+            updateDisplay();
+        }
+
+        updateDisplay();
+    </script>
+
+</body>
+</html>

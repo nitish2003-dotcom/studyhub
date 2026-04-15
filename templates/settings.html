@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | StudyHub</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<div class="topbar">
+    <div class="top-left">
+        <div class="logo">
+            <span>📘</span>
+            <span>StudyHub</span>
+        </div>
+
+        <div class="top-text">
+            <span class="tag">⚙ Account Settings</span>
+            <h1>Settings, {{ user["name"] }} 👋</h1>
+            <p>Manage your profile and account details.</p>
+        </div>
+    </div>
+
+    <div class="top-right">
+        <div class="nav-box">
+            <a href="/dashboard" class="nav-btn">🏠 Dashboard</a>
+            <a href="/courses" class="nav-btn">📚 Courses</a>
+            <a href="/timer" class="nav-btn">⏱ Timer</a>
+            <a href="/ai-help" class="nav-btn">🤖 AI Help</a>
+            <a href="/settings" class="nav-btn active">⚙ Settings</a>
+            <a href="/logout" class="nav-btn">🚪 Logout</a>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="settings-card">
+        <h2>👤 Profile Information</h2>
+
+        <div class="info-box">
+            <p><strong>Name:</strong> {{ user["name"] }}</p>
+            <p><strong>Email:</strong> {{ user["email"] }}</p>
+        </div>
+
+        <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+</div>
+
+</body>
+</html>

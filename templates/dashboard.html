@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | StudyHub</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="dashboard-shell">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">📘</div>
+            <div class="brand-text">StudyHub</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item active"><i class="fa-solid fa-house"></i><span>Dashboard</span></a>
+            <a href="/courses" class="nav-item"><i class="fa-solid fa-book"></i><span>Courses</span></a>
+            <a href="/timer" class="nav-item"><i class="fa-solid fa-stopwatch"></i><span>Timer</span></a>
+            <a href="/ai-help" class="nav-item"><i class="fa-solid fa-robot"></i><span>AI</span></a>
+            <a href="/settings" class="nav-item"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+            <a href="/logout" class="nav-item"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+        </nav>
+    </aside>
+
+    <main class="main-area">
+        <div class="topbar">
+            <input type="text" class="search-box" placeholder="Search anything...">
+            <div class="profile-chip">
+                <i class="fa-solid fa-user"></i>
+                <span>{{ user }}</span>
+            </div>
+        </div>
+
+        <section class="hero-card">
+            <div class="hero-content">
+                <p class="hero-badge">AI Powered Learning</p>
+                <h1>Welcome back, {{ user }} 👋</h1>
+                <p class="hero-subtext">
+                    Stay consistent, stay focused, and make progress every day.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="/courses" class="hero-btn primary-btn">Explore Courses</a>
+                    <a href="/timer" class="hero-btn secondary-btn">Start Timer</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="progress-section">
+            <div class="progress-card">
+                <h3>📊 Today's Study</h3>
+                <p>{{ total_time // 60 }} mins</p>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: 60%;"></div>
+                </div>
+            </div>
+
+            <div class="progress-card">
+                <h3>🔥 Focus Sessions</h3>
+                <p>3 Sessions</p>
+            </div>
+
+            <div class="progress-card">
+                <h3>🎯 Goal</h3>
+                <p>4h Target</p>
+            </div>
+        </section>
+        <section class="stats-section">
+
+    <div class="stats-card">
+        <div class="stats-icon">⏳</div>
+        <div>
+            <h3>Total Study Time</h3>
+            <p>{{ total_time // 60 }} mins</p>
+        </div>
+    </div>
+
+    <div class="stats-card">
+        <div class="stats-icon">🔥</div>
+        <div>
+            <h3>Focus Sessions</h3>
+            <p>3 Sessions</p>
+        </div>
+    </div>
+
+    <div class="stats-card">
+        <div class="stats-icon">🎯</div>
+        <div>
+            <h3>Daily Goal</h3>
+            <p>60% Completed</p>
+            <div class="goal-bar">
+                <div class="goal-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-card">
+        <div class="stats-icon">📅</div>
+        <div>
+            <h3>Day Streak</h3>
+            <p>5 Days</p>
+        </div>
+    </div>
+
+</section>
+<section class="cards-grid">
+
+    <div class="glass-card premium-course-card">
+        <div class="card-head">
+            <h3>📚 Courses</h3>
+            <a href="/courses" class="mini-open-btn">View</a>
+        </div>
+
+        <p class="card-subtext">Manage your study content and keep your learning organized.</p>
+
+        <div class="mini-course-list">
+            <div class="mini-course-item">
+                <span>Web Development</span>
+                <div class="mini-progress"><div style="width: 75%;"></div></div>
+            </div>
+
+            <div class="mini-course-item">
+                <span>Python Basics</span>
+                <div class="mini-progress"><div style="width: 60%;"></div></div>
+            </div>
+
+            <div class="mini-course-item">
+                <span>Data Structures</span>
+                <div class="mini-progress"><div style="width: 45%;"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card premium-focus-card">
+        <div class="focus-top">
+            <div>
+                <h3>⏱ Focus Timer</h3>
+                <p class="mode-text">Ready for your next session</p>
+            </div>
+            <a href="/timer" class="mini-open-btn">Open</a>
+        </div>
+
+        <div class="focus-ring-preview">
+            <div class="focus-ring-inner">
+                <h2>25:00</h2>
+                <span>Focus Mode</span>
+            </div>
+        </div>
+
+        <div class="focus-stats">
+            <div class="focus-stat">
+                <span>Today</span>
+                <strong>{{ total_time // 60 }} mins</strong>
+            </div>
+            <div class="focus-stat">
+                <span>Sessions</span>
+                <strong>3</strong>
+            </div>
+        </div>
+    </div>
+
+            <div class="glass-card premium-ai-card">
+    <div class="card-head">
+        <h3>🤖 AI Assistant</h3>
+        <a href="/ai-help" class="mini-open-btn">Ask</a>
+    </div>
+
+    <p class="card-subtext">Get help with concepts, explanations, and study guidance.</p>
+
+    <div class="ai-suggestions">
+        <span>Explain a topic</span>
+        <span>Solve a problem</span>
+        <span>Study tips</span>
+    </div>
+</div>
+        </section>
+    </main>
+
+</div>
+<script>
+let totalTime = 1500;   
+let time = totalTime;
+let timer = null;
+
+const circle = document.querySelector(".progress-bar");
+const radius = 90;
+const circumference = 2 * Math.PI * radius;
+
+if (circle) {
+    circle.style.strokeDasharray = circumference;
+    circle.style.strokeDashoffset = 0;
+}
+
+function updateCircle() {
+    if (!circle) return;
+    let progress = time / totalTime;
+    let offset = circumference * (1 - progress);
+    circle.style.strokeDashoffset = offset;
+}
+
+function updateDisplay() {
+    const timeEl = document.getElementById("time");
+    if (!timeEl) return;
+
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+
+    timeEl.innerText = minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+    updateCircle();
+}
+
+function startTimer() {
+    if (timer !== null) return;
+
+    timer = setInterval(() => {
+        if (time > 0) {
+            time--;
+            updateDisplay();
+        } else {
+            clearInterval(timer);
+            timer = null;
+
+            fetch("/save-session", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "duration=" + totalTime
+            })
+            .then(response => response.text())
+            .then(data => console.log("Save response:", data))
+            .catch(error => console.log("Fetch error:", error));
+
+            alert("Done 🔥");
+        }
+    }, 1000);
+}
+
+function pauseTimer() {
+    clearInterval(timer);
+    timer = null;
+}
+
+function resetTimer() {
+    clearInterval(timer);
+    timer = null;
+    totalTime = 10;   // testing ke liye
+    time = totalTime;
+
+    const modeEl = document.getElementById("mode");
+    if (modeEl) {
+        modeEl.innerText = "Focus Mode";
+    }
+
+    updateDisplay();
+}
+
+function shortBreak() {
+    clearInterval(timer);
+    timer = null;
+    totalTime = 5;   // testing ke liye short break
+    time = totalTime;
+
+    const modeEl = document.getElementById("mode");
+    if (modeEl) {
+        modeEl.innerText = "Break Mode";
+    }
+
+    updateDisplay();
+}
+
+updateDisplay();
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Module | StudyHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo-box">
+            <h2 class="logo">StudyHub</h2>
+            <p class="logo-sub">Smart Learning Space</p>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="/dashboard" class="menu-item">🏠 Dashboard</a>
+            <a href="/courses" class="menu-item active">📚 Courses</a>
+            <a href="/timer" class="menu-item">⏱ Timer</a>
+            <a href="/ai-help" class="menu-item">🤖 AI Help</a>
+            <a href="/settings" class="menu-item">⚙ Settings</a>
+            <a href="/logout" class="menu-item">🚪 Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-content">
+
+            <div class="course-detail-card">
+                <h1 class="detail-title">Edit Module</h1>
+                <p class="detail-desc">Update module name, video link, or replace the PDF.</p>
+
+                <div class="modules-box">
+                    <form action="/edit-module/{{ course_id }}/{{ module.id }}" method="POST" enctype="multipart/form-data" class="module-form">
+                        <input type="text" name="module_name" value="{{ module.module_name }}" required>
+                        <input type="text" name="video_link" value="{{ module.video_link }}" placeholder="Video link">
+                        <input type="file" name="pdf_file" accept=".pdf">
+
+                        {% if module.pdf_file %}
+                            <p class="current-file">
+                                Current PDF:
+                                <a href="{{ url_for('static', filename='uploads/' + module.pdf_file) }}" target="_blank" class="module-link">
+                                    {{ module.pdf_file }}
+                                </a>
+                            </p>
+                        {% endif %}
+
+                        <div class="detail-btn-row">
+                            <a href="/course/{{ course_id }}" class="back-btn">← Back</a>
+                            <button type="submit" class="start-btn">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Help | StudyHub</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="page-content">
+    <div class="ai-container">
+
+    <div class="ai-header">
+        <h2>🤖 StudyHub AI Assistant</h2>
+        <p>Your smart study partner</p>
+    </div>
+
+    <div class="ai-controls">
+        <button onclick="startVoice()" class="voice-btn">🎤 Speak</button>
+
+        <textarea id="question" placeholder="Ask anything..."></textarea>
+
+        <div class="ai-buttons">
+            <button onclick="askAI()" class="ask-btn">Ask AI</button>
+            <button onclick="speakAnswer()" class="speak-btn">🔊 Speak</button>
+            <button onclick="stopVoice()" class="stop-btn">⛔ Stop</button>
+            <button onclick="downloadPDF()" class="pdf-btn">📄 PDF</button>
+        </div>
+    </div>
+
+    <div id="answer" class="chat-box"></div>
+        <!-- PDF -->
+        <button onclick="downloadPDF()" class="pdf-btn">📄 Download PDF</button>
+    </div>
+
+</div>
+
+<script>
+
+// 🔹 Load voices properly
+window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices();
+};
+
+// 🎤 Voice input
+function startVoice() {
+    if (!('webkitSpeechRecognition' in window)) {
+        alert("Use Chrome browser");
+        return;
+    }
+
+    let recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-IN";
+    recognition.start();
+
+    recognition.onresult = function (event) {
+        let text = event.results[0][0].transcript;
+        document.getElementById("question").value = text;
+    };
+}
+
+// 🤖 Ask AI
+async function askAI() {
+    let question = document.getElementById("question").value;
+    let answerBox = document.getElementById("answer");
+
+    if (!question.trim()) {
+        alert("Enter question");
+        return;
+    }
+
+    answerBox.innerHTML += `<div class="chat user">👤 ${question}</div>`;
+    document.getElementById("question").value = "";
+
+    answerBox.innerHTML += `<div class="chat ai thinking">⏳ Thinking...</div>`;
+
+    try {
+        let formData = new FormData();
+        formData.append("message", question);
+
+        let res = await fetch("/ask-ai", {
+            method: "POST",
+            body: formData
+        });
+
+        let data = await res.json();
+
+        document.querySelector(".thinking")?.remove();
+
+        let old = document.getElementById("latest-ai");
+        if (old) old.removeAttribute("id");
+        // empty AI box create
+        answerBox.innerHTML = `
+    <div class="chat ai" id="latest-ai">
+        🤖<span class="typed-text"></span><span class="typing-cursor">|</span>
+    </div>
+`;
+
+
+let aiBox = document.getElementById("latest-ai");
+
+// typing animation start
+typeText(data.reply);
+
+    
+
+        answerBox.scrollTop = answerBox.scrollHeight;
+
+    } catch {
+        answerBox.innerHTML += `<div class="chat ai">❌ Error</div>`;
+    }
+}
+
+// 🔊 Better voice output
+function speakAnswer() {
+    let el = document.getElementById("latest-ai");
+
+    if (!el) {
+        alert("No answer");
+        return;
+    }
+
+    let text = el.innerText;
+
+    window.speechSynthesis.cancel();
+
+    let speech = new SpeechSynthesisUtterance(text);
+    let voices = speechSynthesis.getVoices();
+
+    let voice =
+        voices.find(v => v.name.includes("Google") && v.lang.includes("en-IN")) ||
+        voices.find(v => v.name.includes("Google") && v.lang.includes("en-US")) ||
+        voices.find(v => v.lang.includes("en-IN")) ||
+        voices[0];
+
+    if (voice) {
+        speech.voice = voice;
+        speech.lang = voice.lang;
+    }
+
+    speech.rate = 0.95;
+    speech.pitch = 1;
+
+    speechSynthesis.speak(speech);
+}
+
+// ⛔ Stop voice
+function stopVoice() {
+    speechSynthesis.cancel();
+}
+
+// 📄 PDF download
+function downloadPDF() {
+    let el = document.getElementById("latest-ai");
+
+    if (!el) {
+        alert("No content");
+        return;
+    }
+
+    let content = el.innerText;
+
+    let form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/download-ai-pdf";
+
+    let input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "content";
+    input.value = content;
+
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+}
+function typeText(text, speed = 20) {
+    let i = 0;
+    let typedText = document.querySelector("#latest-ai .typed-text");
+    let cursor = document.querySelector(".typing-cursor");
+
+    typedText.innerHTML = "";
+
+    function typing() {
+        if (i < text.length) {
+            let char = text.charAt(i);
+
+            if (char === "\n") {
+                typedText.innerHTML += "<br>";
+            } else {
+                typedText.innerHTML += char;
+            }
+
+            i++;
+            setTimeout(typing, speed);
+        } else {
+            if (cursor) {
+                cursor.remove();
+            }
+        }
+    }
+
+    typing();
+}
+</script>
+
+</body>
+</html>

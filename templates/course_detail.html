@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ course.title }} | StudyHub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo-box">
+            <h2 class="logo">StudyHub</h2>
+            <p class="logo-sub">Smart Learning Space</p>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="/dashboard" class="menu-item">🏠 Dashboard</a>
+            <a href="/courses" class="menu-item active">📚 Courses</a>
+            <a href="/timer" class="menu-item">⏱ Timer</a>
+            <a href="/ai-help" class="menu-item">🤖 AI Help</a>
+            <a href="/settings" class="menu-item">⚙ Settings</a>
+            <a href="/logout" class="menu-item">🚪 Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-content">
+
+            <div class="course-detail-card">
+                <div class="course-detail-header">
+                    <div class="detail-icon">{{ course.icon }}</div>
+                    <div>
+                        <h1 class="detail-title">{{ course.title }}</h1>
+                        <p class="detail-desc">{{ course.description }}</p>
+                        <p class="detail-semester">Semester {{ course.semester }}</p>
+                    </div>
+                </div>
+
+                <div class="detail-progress-box">
+                    <div class="course-progress-row">
+                        <span>Overall Progress</span>
+                        <span>{{ course.progress }}%</span>
+                    </div>
+                    <div class="course-progress-bar">
+                        <div class="course-progress-fill" style="width: {{ course.progress }}%;"></div>
+                    </div>
+                </div>
+
+                <div class="modules-box">
+                    <h2>Add Module</h2>
+
+                    <form action="/add-module/{{ course.id }}" method="POST" enctype="multipart/form-data" class="module-form">
+                        <input type="text" name="module_name" placeholder="Module name" required>
+                        <input type="text" name="video_link" placeholder="Video link">
+                        <input type="file" name="pdf_file" accept=".pdf">
+                        <button type="submit" class="start-btn">Add Module</button>
+                    </form>
+                </div>
+
+                <div class="modules-box">
+                    <h2>Modules</h2>
+
+                    {% if course.modules %}
+                        <div class="module-grid">
+                            {% for module in course.modules %}
+                            <div class="module-card">
+                                <div class="module-top">
+                                    <h3>{{ module.module_name }}</h3>
+
+                                    {% if module.completed == 1 %}
+                                        <span class="module-status done">Completed</span>
+                                    {% else %}
+                                        <span class="module-status pending">Pending</span>
+                                    {% endif %}
+                                </div>
+                                <div class="module-links">
+    {% if module.video_link %}
+        <a href="{{ module.video_link }}" target="_blank" class="module-link">▶ Video</a>
+    {% endif %}
+
+    {% if module.pdf_file %}
+        <a href="{{ url_for('static', filename='uploads/' + module.pdf_file) }}" target="_blank" class="module-link">📄 PDF</a>
+        <a href="/delete-pdf/{{ course.id }}/{{ module.id }}" class="delete-btn">Delete PDF</a>
+    {% else %}
+        <span class="delete-btn" style="opacity: 0.5; pointer-events: none;">No PDF</span>
+    {% endif %}
+</div>
+                                </div>
+
+                                <a href="/toggle-module/{{ course.id }}/{{ module.id }}" class="complete-btn">
+                                    {% if module.completed == 1 %}
+                                        Mark as Pending
+                                    {% else %}
+                                        Mark as Complete
+                                    {% endif %}
+                                </a>
+                                <a href="/edit-module/{{ course.id }}/{{ module.id }}" class="edit-module-btn">
+    ✏ Edit Module
+</a>
+                                <a href="/delete-module/{{ course.id }}/{{ module.id }}" class="delete-module-btn">
+        🗑 Delete Module
+    </a>
+
+</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="empty-text">No modules added yet.</p>
+                    {% endif %}
+                </div>
+
+                <div class="detail-btn-row">
+                    <a href="/courses" class="back-btn">← Back to Subjects</a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+</body>
+</html>
